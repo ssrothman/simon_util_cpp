@@ -6,9 +6,9 @@
 
 int main(){
     unsigned nPart=5;
-    unsigned nDim=3;
+    unsigned nDim=2;
 
-    vecND::vecND<float, vecND::type::SYM> vec(nPart, nDim, 0.f);
+    vecND::vecND<float, vecND::type::NODIAG> vec(nPart, nDim, 0.f);
     std::vector<unsigned> ord = vec.ord0();
 
     printf("vec parameters: (%u, %u, %lu)\n", vec.nPart(), vec.dim(), vec.size());
@@ -18,6 +18,7 @@ int main(){
         printOrd(ord);
         printf("\n");
         vec.at(i);
+        vec.at(ord);
     }
     return 0;
 }
