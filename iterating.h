@@ -1,5 +1,5 @@
-#ifndef ITERATING_H
-#define ITERATING_H
+#ifndef SIMON_UTIL_ITERATING_H
+#define SIMON_UTIL_ITERATING_H
 
 #include <vector>
 #include <iostream>
@@ -12,6 +12,18 @@ void printOrd(const std::vector<T> ord) {
     std::cout << ord[i] << ", ";
   }
   std::cout << ord[ord.size() - 1] << ")";
+}
+
+inline std::vector<unsigned> ord0_full(unsigned dim){
+    return std::vector<unsigned>(dim, 0u);
+}
+
+inline std::vector<unsigned> ord0_nodiag(unsigned dim){
+    std::vector<unsigned> ans(dim);
+    for(unsigned i=0; i<dim; ++i){
+        ans[i] = i;
+    }
+    return ans;
 }
 
 template <typename T, typename R>

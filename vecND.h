@@ -1,5 +1,5 @@
-#ifndef VECND_H
-#define VECND_H
+#ifndef SIMON_UTIL_VECND_H
+#define SIMON_UTIL_VECND_H
 
 #include <vector>
 #include "combinatorics.h"
@@ -29,29 +29,47 @@ class vecND{
                                                  vec_(size_, fillval){}
 
 
-    template <typename I>
-    valuetype& at(const std::vector<I>& ord){
+    template <typename I, typename R=unsigned>
+    valuetype& at(const std::vector<I>& ord, R* idxout = nullptr){
       if(ord.size() != dim_){
         throw std::invalid_argument("trying to index vecND with the wrong dimensionality");
       }
       size_t idx = idx_(ord);
-      printf("\t%lu\n", idx);
+      if(idxout){
+          *idxout = idx;
+      }
+      return vec_.at(idx);
+    }
+
+    template <typename I, typename R=unsigned>
+    const valuetype& at(const std::vector<I>& ord, R* idxout = nullptr) const{
+      if(ord.size() != dim_){
+        throw std::invalid_argument("trying to index vecND with the wrong dimensionality");
+      }
+      size_t idx = idx_(ord);
+      if(idxout){
+          *idxout = idx;
+      }
       return vec_.at(idx);
     }
 
     //only should be used if you know what you're doing
-    valuetype& at(const size_t i){
+    template <typename I>
+    valuetype& at(const I i){
+        return vec_.at(i);
+    }
+
+    template <typename I>
+    const valuetype& at(const I i) const{
         return vec_.at(i);
     }
 
     std::vector<unsigned> ord0(){
-        std::vector<unsigned> ans(dim_, 0u);
         if constexpr(vectype == type::NODIAG){
-            for(unsigned i=0; i<dim_; ++i){
-                ans[i] = i;
-            }
+            return ord0_nodiag(dim_);
+        } else {
+            return ord0_full(dim_);
         }
-        return ans;
     }
 
   unsigned nPart() const {
@@ -76,6 +94,10 @@ class vecND{
         }
   }
 
+  const std::vector<valuetype>& data() const{
+    return vec_;
+  }
+
   private:
     const unsigned dim_, N_;
     const size_t size_;
@@ -94,7 +116,7 @@ class vecND{
     //NB assumes ord is the right size
     //sorts a copy of ord
     template <typename I>
-    size_t idx_(const std::vector<I>& ord){
+    size_t idx_(const std::vector<I>& ord) const{
         if constexpr(vectype==type::FULL){
             size_t result=0;
             for(size_t i=0; i<dim_; ++i){
@@ -102,19 +124,23 @@ class vecND{
             }
             return result;
         } else {
-            throw std::logic_error("Not Implemented!");
             std::vector<I> sorted(ord);
             std::sort(sorted.begin(), sorted.end());
 
-            if constexpr(vectype==type::SYM){
-                return 0;
-            } else if constexpr(vectype==type::NODIAG){
-                return 0;
+            if constexpr(vectype==type::NODIAG){
+                if(dim_==2){
+                    return size_ - tri(N_-sorted[0]-1) + (sorted[1] - sorted[0] - 1);
+                }
             }
+            throw std::logic_error("Not Implemented!");
         }
     }
 };
 
+typedef vecND<float, type::FULL> fullvec;;
+typedef vecND<float, type::SYM> symvec;
+typedef vecND<float, type::NODIAG> nodiagvec;
 };
+
 #endif
 
