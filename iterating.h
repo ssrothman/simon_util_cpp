@@ -27,6 +27,23 @@ inline std::vector<unsigned> ord0_nodiag(unsigned dim){
 }
 
 template <typename T, typename R>
+bool iterate_awkward(const std::vector<T>& dims, std::vector<R>& ord){
+    for(int dim=dims.size()-1; dim>=0; --dim){
+        if(ord[dim] < dims[dim]-1){
+            ++ord[dim];
+            break;
+        } else {
+            ord[dim] = 0;
+            if(dim==0){
+                std::fill(ord.begin(), ord.end(), 0);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+template <typename T, typename R>
 bool iterate_nodiag(const T dims, std::vector<R>& ordinates, const T nParts) {
   // iterate over dimensions in reverse...
   for (int dim = dims - 1; dim >= 0; --dim) {

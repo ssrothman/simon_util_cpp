@@ -1,3 +1,6 @@
+test2: test2.o combinatorics.o iterating.o
+	g++ $^ -o $@
+
 test1: test1.o combinatorics.o iterating.o
 	g++ $^ -o $@
 
