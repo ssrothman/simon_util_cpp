@@ -14,4 +14,9 @@ bool uniform(std::vector<T> v){
     return true;
 }
 
+template <typename T>
+T square(const T& x){
+    return x*x;
+}
+
 #endif
