@@ -15,7 +15,7 @@ bool uniform(std::vector<T> v){
 }
 
 template <typename T>
-T square(const T& x){
+inline T square(const T& x){
     return x*x;
 }
 
