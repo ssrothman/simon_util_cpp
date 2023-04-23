@@ -6,6 +6,10 @@
 
 template <typename T>
 void printOrd(const std::vector<T> ord) {
+  if(ord.size()==0){
+      std::cout << "()" << std::endl;
+      return;
+  }
   std::cout << "(";
   unsigned int i = 0;
   for (i = 0; i < ord.size() - 1; ++i) {
