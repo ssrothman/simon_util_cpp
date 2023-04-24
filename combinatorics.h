@@ -14,6 +14,11 @@ struct comp{
         composition(composition), factor(factor) {}
 };
 
+//NB assumes ord is sorted
+size_t getNodiagIdx(const std::vector<unsigned>& ord,
+                    const unsigned N, const unsigned dim,
+                    const unsigned istart=0, const unsigned off=0);
+
 typedef std::vector<std::vector<comp>> comp_t;
 
 int fact(int n);

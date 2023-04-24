@@ -4,6 +4,8 @@
 #include <math.h>
 #include <algorithm>
 
+#include <boost/container_hash/hash.hpp>
+
 int fact(int n) {
   int result = 1;
   for (int i = 2; i < n + 1; ++i) {
@@ -75,6 +77,7 @@ void fillCompositions(const int n, comp_t& out) {
 }
 
 size_t choose(int n, int k) {
+    static std::unordered_map<std::pair<int, int>, size_t, boost::hash<std::pair<int,int>>> cache;
   if (k > n)
     return 0;
   if (k * 2 > n)
@@ -82,11 +85,19 @@ size_t choose(int n, int k) {
   if (k == 0)
     return 1;
 
+  std::pair<int, int> key(n, k);
+  auto it = cache.find(key);
+  if(it != cache.end()){
+    return it->second;
+  }
+
   size_t result = n;
   for (int i = 2; i <= k; ++i) {
     result *= (n - i + 1);
     result /= i;
   }
+
+  cache[key] = result;
   return result;
 }
 
@@ -100,4 +111,16 @@ size_t simp(const size_t nPart, const size_t order){
   return result;
 }
 
-
+size_t getNodiagIdx(const std::vector<unsigned>& ord,
+                    const unsigned N, const unsigned dim,
+                    const unsigned istart, const unsigned off){
+    if(dim == 0){
+        return 0;
+    } else if(dim == 1){
+        return ord[istart]-off;
+    } else {//if(dim == 2){
+        size_t s1 = choose(N-off, dim) - choose(N-ord[istart], dim);
+        size_t s2 = getNodiagIdx(ord, N, dim-1, istart+1, ord[istart]+1);
+        return s1+s2;
+    }
+}

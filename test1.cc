@@ -5,8 +5,8 @@
 #include "iterating.h"
 
 int main(){
-    unsigned nPart=5;
-    unsigned nDim=2;
+    unsigned nPart=10;
+    unsigned nDim=5;
 
     vecND::vecND<float, vecND::type::NODIAG> vec(nPart, nDim, 0.f);
     std::vector<unsigned> ord = vec.ord0();
@@ -17,8 +17,7 @@ int main(){
         printf("%lu: ", i);
         printOrd(ord);
         printf("\n");
-        vec.at(i);
-        vec.at(ord);
+        printf("getIdx() returns %lu\n", getNodiagIdx(ord, nPart, nDim));
     }
     return 0;
 }
