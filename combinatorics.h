@@ -7,6 +7,11 @@
 struct comp{
     std::vector<unsigned> composition;
     unsigned factor;
+
+    comp(){}
+
+    comp(std::vector<unsigned> composition, unsigned factor):
+        composition(composition), factor(factor) {}
 };
 
 typedef std::vector<std::vector<comp>> comp_t;
