@@ -53,7 +53,7 @@ bool iterate_nodiag(const T dims, std::vector<R>& ordinates, const T nParts) {
   for (int dim = dims - 1; dim >= 0; --dim) {
     if (ordinates[dim] < nParts - dims + dim) {
       ++ordinates[dim];
-      for (int d2 = dim + 1; d2 < dims; ++d2) {
+      for (unsigned d2 = dim + 1; d2 < dims; ++d2) {
         ordinates[d2] = ordinates[d2 - 1] + 1;
       }
       return true;
