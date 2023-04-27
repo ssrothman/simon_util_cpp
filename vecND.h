@@ -20,6 +20,8 @@ template <class valuetype, enum type vectype>
 class vecND{
   public:
 
+    vecND() : dim_(0), N_(0), size_(0), vec_() {}
+
     vecND(unsigned N, unsigned dim) : dim_(dim), N_(N),
                                       size_(getsize_()),
                                       vec_(size_){}
@@ -64,7 +66,7 @@ class vecND{
         return vec_.at(i);
     }
 
-    std::vector<unsigned> ord0(){
+    std::vector<unsigned> ord0() const{
         if constexpr(vectype == type::NODIAG){
             return ord0_nodiag(dim_);
         } else {
@@ -84,7 +86,7 @@ class vecND{
       return size_;
   }
 
-  bool iterate(std::vector<unsigned>& ord){
+  bool iterate(std::vector<unsigned>& ord) const{
         if constexpr(vectype==type::FULL){
             return iterate_full(dim_, ord, N_);
         } else if constexpr(vectype == type::SYM){
@@ -99,8 +101,8 @@ class vecND{
   }
 
   private:
-    const unsigned dim_, N_;
-    const size_t size_;
+    unsigned dim_, N_;
+    size_t size_;
     std::vector<valuetype> vec_;
 
     size_t getsize_() const{
