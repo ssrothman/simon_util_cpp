@@ -77,7 +77,7 @@ void fillCompositions(const int n, comp_t& out) {
 }
 
 size_t choose(int n, int k) {
-    static std::unordered_map<std::pair<int, int>, size_t, boost::hash<std::pair<int,int>>> cache;
+    /*static std::unordered_map<std::pair<int, int>, size_t, boost::hash<std::pair<int,int>>> cache;*/
   if (k > n)
     return 0;
   if (k * 2 > n)
@@ -85,11 +85,11 @@ size_t choose(int n, int k) {
   if (k == 0)
     return 1;
 
-  std::pair<int, int> key(n, k);
+  /*std::pair<int, int> key(n, k);
   auto it = cache.find(key);
   if(it != cache.end()){
     return it->second;
-  }
+  }*/
 
   size_t result = n;
   for (int i = 2; i <= k; ++i) {
@@ -97,7 +97,7 @@ size_t choose(int n, int k) {
     result /= i;
   }
 
-  cache[key] = result;
+  /*cache[key] = result;*/
   return result;
 }
 
