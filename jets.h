@@ -33,10 +33,50 @@ struct jet{
     double sumpt;
     unsigned iJet;
 
-    arma::vec ptvec(){
+    inline arma::vec ptvec() const{
         arma::vec ans(nPart, arma::fill::none);
         for(unsigned i=0; i<nPart; ++i){
             ans(i) = particles[i].pt;
+        }
+        return ans;
+    }
+
+    inline arma::vec etavec() const{
+        arma::vec ans(nPart, arma::fill::none);
+        for(unsigned i=0; i<nPart; ++i){
+            ans(i) = particles[i].eta;
+        }
+        return ans;
+    }
+
+    inline arma::vec phivec() const{
+        arma::vec ans(nPart, arma::fill::none);
+        for(unsigned i=0; i<nPart; ++i){
+            ans(i) = particles[i].phi;
+        }
+        return ans;
+    }
+
+    inline arma::vec dptvec() const{
+        arma::vec ans(nPart, arma::fill::none);
+        for(unsigned i=0; i<nPart; ++i){
+            ans(i) = particles[i].dpt;
+        }
+        return ans;
+    }
+
+    inline arma::vec detavec() const{
+        arma::vec ans(nPart, arma::fill::none);
+        for(unsigned i=0; i<nPart; ++i){
+            ans(i) = particles[i].deta;
+        }
+        return ans;
+    }
+
+    inline arma::vec dphivec() const{
+        arma::vec ans(nPart, arma::fill::none);
+        for(unsigned i=0; i<nPart; ++i){
+            ans(i) = particles[i].dphi;
         }
         return ans;
     }
