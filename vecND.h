@@ -139,9 +139,17 @@ class vecND{
     }
 };
 
+
 typedef vecND<double, type::FULL> fullvec;;
 typedef vecND<double, type::SYM> symvec;
 typedef vecND<double, type::NODIAG> nodiagvec;
+typedef vecND<unsigned, type::FULL> ufullvec;
+typedef vecND<unsigned, type::SYM> usymvec;
+typedef vecND<unsigned, type::NODIAG> unodiagvec;
+typedef vecND<int, type::FULL>iufullvec;
+typedef vecND<int, type::SYM> isymvec;
+typedef vecND<int, type::NODIAG> inodiagvec;
+
 };
 
 #endif
