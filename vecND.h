@@ -152,5 +152,91 @@ typedef vecND<int, type::NODIAG> inodiagvec;
 
 };
 
+template <typename Value>
+class ArbitraryMatrix {
+    public:
+        ArbitraryMatrix() : dims_(), values_() {setoffsets();}
+
+        ArbitraryMatrix(const std::vector<unsigned>& dims, const Value& fillval){
+            dims_ = dims;
+            size_ = 1;
+            for(auto& d : dims_){
+                size_ *= d;
+            }
+            values_ = std::vector<Value>(size_, fillval);
+
+            setoffsets();
+        }
+
+        ArbitraryMatrix(const std::vector<unsigned>& dims) : 
+            ArbitraryMatrix(dims, 0) {}
+
+        ArbitraryMatrix(unsigned dimSize, unsigned nDim, const Value& fillval){
+            dims_ = std::vector<unsigned>(nDim, dimSize);
+            size_ = intPow(dimSize, nDim);
+            values_ = std::vector<Value>(size_, fillval);
+            setoffsets();
+        }
+
+        ArbitraryMatrix(unsigned dimSize, unsigned nDim) : 
+            ArbitraryMatrix(dimSize, nDim, 0) {}
+
+        const Value& at(const std::vector<unsigned>& ord) const {
+            size_t idx = get_idx(ord);
+            return values_.at(idx);
+        }
+
+        Value& at(const std::vector<unsigned>& ord){
+            size_t idx = get_idx(ord);
+            return values_.at(idx);
+        }
+
+        std::vector<unsigned> ord0() const{
+            return std::vector<unsigned>(dims_.size(), 0);
+        }
+
+        bool iterate(std::vector<unsigned>& ord) const{
+            for(int i=ord.size()-1; i>=0; --i){
+                if(ord[i] < dims_[i]-1){
+                    ++ord[i];
+                    return true;
+                } else {
+                    ord[i] = 0;
+                }
+            }
+            return false;
+        }
+
+        size_t get_idx(const std::vector<unsigned>& ord) const {
+            size_t ans=0;
+            for(unsigned i=0; i<ord.size(); ++i){
+                ans += ord[i] * offsets_[i];
+            }
+            return ans;
+        }
+
+        std::vector<Value>& data(){
+            return values_;
+        }
+
+        const std::vector<Value>& data() const{
+            return values_;
+        }
+    private:
+        std::vector<unsigned> dims_;
+        std::vector<size_t> offsets_;
+        std::vector<Value> values_;
+        size_t size_;
+
+        void setoffsets(){
+            offsets_.resize(dims_.size(), 1);
+            size_t offset = 1;
+            for(int i=dims_.size()-1; i>=0; --i){
+                offsets_[i] = offset;
+                offset *= dims_[i];
+            }
+        }
+};
+
 #endif
 
