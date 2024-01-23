@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <math.h>
+#include <cmath>
 #include "SRothman/armadillo-12.2.0/include/armadillo"
 //#include <boost/math/ccmath/ccmath.hpp>
 
@@ -12,17 +13,41 @@ struct particle{
     unsigned pdgid; //absolute value
     int charge;
 
+    //extras
+    double vtx_x, vtx_y, vtx_z;
+    double dxy, dz;
+    int fromPV;
+    double puppiweight;
+
     particle(double pt, double eta, double phi,
              double dpt, double deta, double dphi,
              unsigned pdgid, int charge):
         pt(pt), eta(eta), phi(phi),
         dpt(dpt), deta(deta), dphi(dphi),
-        pdgid(pdgid), charge(charge) {}
+        pdgid(pdgid), charge(charge),
+        vtx_x(9999), vtx_y(9999), vtx_z(9999),
+        dxy(9999), dz(9999),
+        fromPV(9999), puppiweight(9999) {}
+
+    particle(double pt, double eta, double phi,
+             unsigned pdgid, int charge,
+             double vtx_x, double vtx_y, double vtx_z,
+             double dxy, double dz,
+             int fromPV, double puppiweight):
+        pt(pt), eta(eta), phi(phi),
+        dpt(-1), deta(-1), dphi(-1),
+        pdgid(pdgid), charge(charge),
+        vtx_x(vtx_x), vtx_y(vtx_y), vtx_z(vtx_z),
+        dxy(dxy), dz(dz),
+        fromPV(fromPV), puppiweight(puppiweight) {}
 
     particle() :
         pt(0), eta(0), phi(0),
         dpt(0), deta(0), dphi(0), 
-        pdgid(0), charge(0) {}
+        pdgid(0), charge(0),
+        vtx_x(9999), vtx_y(9999), vtx_z(9999),
+        dxy(9999), dz(9999),
+        fromPV(9999), puppiweight(9999) {}
 };
 
 
@@ -32,6 +57,20 @@ struct jet{
     std::vector<particle> particles;
     double sumpt;
     unsigned iJet;
+
+    //extras
+    unsigned nEM0, nHAD0, nHADCH, nELE, nMU;
+    double jecfactor;
+    unsigned iCHS;
+
+    jet() :
+        pt(0), eta(0), phi(0), 
+        nPart(0), particles(),
+        sumpt(0), iJet(9999),
+        nEM0(0), nHAD0(0), nHADCH(0), 
+        nELE(0), nMU(0), jecfactor(9999), 
+        iCHS(9999) {}
+
 
     inline arma::vec ptvec() const{
         arma::vec ans(nPart, arma::fill::none);
