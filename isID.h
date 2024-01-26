@@ -2,33 +2,59 @@
 #define SIMONTOOLS_ISID_H
 
 template <typename P>
-inline bool isEM0(const P& partptr){
+inline bool isEM0(const P * const partptr){
     unsigned pdgid = std::abs(partptr->pdgId());
     return pdgid==22;
 }
 
 template <typename P>
-inline bool isELE(const P& partptr){
+inline bool isEM0(const P& part){
+    return isEM0(&part);
+}
+
+template <typename P>
+inline bool isELE(const P * const partptr){
     unsigned pdgid = std::abs(partptr->pdgId());
     return pdgid==11;
 }
 
 template <typename P>
-inline bool isMU(const P& partptr){
+inline bool isELE(const P& part){
+    return isELE(&part);
+}
+
+template <typename P>
+inline bool isMU(const P * const partptr){
     unsigned pdgid = std::abs(partptr->pdgId());
     return pdgid==13;
 }
 
 template <typename P>
-inline bool isHADCH(const P& partptr){
+inline bool isMU(const P& part){
+    return isMU(&part);
+}
+
+template <typename P>
+inline bool isHADCH(const P * const partptr){
     unsigned pdgid = std::abs(partptr->pdgId());
     return pdgid>=100 && partptr->charge()!=0;
 }
 
+
 template <typename P>
-inline bool isHAD0(const P& partptr){
+inline bool isHADCH(const P& part){
+    return isHADCH(&part);
+}
+
+template <typename P>
+inline bool isHAD0(const P * const partptr){
     unsigned pdgid = std::abs(partptr->pdgId());
     return pdgid>=100 && partptr->charge()==0;
+}
+
+template <typename P>
+inline bool isHAD0(const P& part){
+    return isHAD0(&part);
 }
 
 #include "jets.h"

@@ -50,15 +50,6 @@ struct particleThresholds{
         } else if(isMU(part)){
             return MUthresholds[region];
         } else {
-            if constexpr(std::is_same_v<P, particle>){
-                printf("The particle has pdgid %d\n", part.pdgid);
-                printf("\t(pt, eta, phi) = (%f, %f, %f)\n",
-                        part.pt, part.eta, part.phi);
-            } else {
-                printf("The particle has pdgid %d\n", part->pdgId());
-                printf("\t(pt, eta, phi) = (%f, %f, %f)\n",
-                        part->pt(), part->eta(), part->phi());
-            }
             throw std::runtime_error(
                     "particleThresholds::getThreshold: "
                     "particle flavor not recognized");
@@ -78,8 +69,7 @@ struct particleThresholds{
 
     template <typename P>
     double getThreshold(const P* const part) const{
-        int region = getEtaRegion(part->eta(), etaRegions);
-        return getThreshold(part, region);
+        return getThreshold(*part);
     }
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc){
