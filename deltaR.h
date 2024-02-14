@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <armadillo>
+#include "jets.h"
 
 inline double deltaphi(double phi1, double phi2){
     double dphi = phi2 - phi1;
@@ -32,6 +33,27 @@ inline double dR2(double eta1, double phi1, double eta2, double phi2) {
   double dphi = deltaphi(phi1, phi2);
 
   return deta * deta + dphi * dphi;
+}
+
+inline double dR(double eta1, double phi1, double eta2, double phi2) {
+  /*
+    * Compute delta R between (eta1, phi1) and (eta2, phi2)
+    */
+  return sqrt(dR2(eta1, phi1, eta2, phi2));
+}
+
+inline double dR2(const particle& p1, const particle& p2) {
+  /*
+    * Compute delta R^2 between p1 and p2
+    */
+  return dR2(p1.eta, p1.phi, p2.eta, p2.phi);
+}
+
+inline double dR(const particle& p1, const particle& p2) {
+  /*
+    * Compute delta R between p1 and p2
+    */
+  return dR(p1.eta, p1.phi, p2.eta, p2.phi);
 }
 
 #endif
