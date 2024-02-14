@@ -168,8 +168,16 @@ class ArbitraryMatrix {
             setoffsets();
         }
 
-        ArbitraryMatrix(const std::vector<unsigned>& dims) : 
-            ArbitraryMatrix(dims, 0) {}
+        ArbitraryMatrix(const std::vector<unsigned>& dims) {
+            dims_ = dims;
+            size_ = 1;
+            for(auto& d : dims_){
+                size_ *= d;
+            }
+            values_ = std::vector<Value>(size_);
+
+            setoffsets();
+        }
 
         ArbitraryMatrix(unsigned dimSize, unsigned nDim, const Value& fillval){
             dims_ = std::vector<unsigned>(nDim, dimSize);
@@ -178,8 +186,12 @@ class ArbitraryMatrix {
             setoffsets();
         }
 
-        ArbitraryMatrix(unsigned dimSize, unsigned nDim) : 
-            ArbitraryMatrix(dimSize, nDim, 0) {}
+        ArbitraryMatrix(unsigned dimSize, unsigned nDim) {
+            dims_ = std::vector<unsigned>(nDim, dimSize);
+            size_ = intPow(dimSize, nDim);
+            values_ = std::vector<Value>(size_);
+            setoffsets();
+        }
 
         const Value& at(const std::vector<unsigned>& ord) const {
             size_t idx = get_idx(ord);
@@ -221,6 +233,10 @@ class ArbitraryMatrix {
 
         const std::vector<Value>& data() const{
             return values_;
+        }
+
+        std::vector<unsigned> dims() const {
+            return dims_;
         }
     private:
         std::vector<unsigned> dims_;
