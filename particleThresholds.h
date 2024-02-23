@@ -53,17 +53,29 @@ struct particleThresholds{
             throw std::runtime_error(
                     "particleThresholds::getThreshold: "
                     "particle flavor not recognized");
+            return 0;
+            
         }
     }
 
     template <typename P>
     double getThreshold(const P& part) const{
         int region = getEtaRegion(part.eta(), etaRegions);
+        if(region > (int)etaRegions.size()-1){
+            throw std::runtime_error(
+                    "particleThresholds::getThreshold: "
+                    "particle eta out of range " + std::to_string(part.eta()));
+        }
         return getThreshold(part, region);
     }
 
     double getThreshold(const particle& part) const{
         int region = getEtaRegion(part.eta, etaRegions);
+        if(region > (int)etaRegions.size()-1){
+            throw std::runtime_error(
+                    "particleThresholds::getThreshold: "
+                    "particle eta out of range " + std::to_string(part.eta));
+        }
         return getThreshold(part, region);
     }
 
