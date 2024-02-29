@@ -64,6 +64,7 @@ struct jet{
     unsigned nEM0, nHAD0, nHADCH, nELE, nMU;
     double jecfactor;
     std::vector<unsigned> iCHS;
+    unsigned iSV;
 
     jet() :
         pt(0), sumpt(0), rawpt(0),
@@ -72,7 +73,7 @@ struct jet{
         iJet(9999),
         nEM0(0), nHAD0(0), nHADCH(0), 
         nELE(0), nMU(0), jecfactor(9999), 
-        iCHS() {}
+        iCHS(), iSV(9999) {}
 
 
     inline arma::vec ptvec() const{
