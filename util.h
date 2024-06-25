@@ -6,6 +6,14 @@
 #include <cstdarg>
 
 template <typename T>
+void printVec(std::vector<T> v){
+    for(unsigned i=0; i<v.size(); ++i){
+        std::cout << v[i] << " ";
+    }
+    std::cout << std::endl;
+}
+
+template <typename T>
 bool uniform(std::vector<T> v){
     if (v.size() < 2) 
         return true;
