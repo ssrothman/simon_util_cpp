@@ -2,7 +2,7 @@
 #define SIMON_UTIL_DR_H
 
 #include <math.h>
-#include <armadillo>
+#include "SRothman/armadillo-12.2.0/include/armadillo"
 #include "jets.h"
 
 inline double deltaphi(double phi1, double phi2){
