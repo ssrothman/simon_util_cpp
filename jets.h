@@ -19,6 +19,14 @@ struct particle{
     int fromPV;
     double puppiweight;
 
+    particle(double pt, double eta, double phi):
+        pt(pt), eta(eta), phi(phi),
+        dpt(-1), deta(-1), dphi(-1),
+        pdgid(0), charge(0),
+        vtx_x(9999), vtx_y(9999), vtx_z(9999),
+        dxy(9999), dz(9999),
+        fromPV(9999), puppiweight(9999) {}
+
     particle(double pt, double eta, double phi,
              double dpt, double deta, double dphi,
              unsigned pdgid, int charge):

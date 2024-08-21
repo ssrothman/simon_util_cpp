@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "jets.h"
 
-inline void printPart(particle& part){
+inline void printPart(const particle& part){
     printf("particle: (%0.2f, %0.2f, %0.2f)\n", part.pt, part.eta, part.phi);
     printf("\tcharge: %d\n", part.charge);
     printf("\tpdgid: %d\n", part.pdgid);
