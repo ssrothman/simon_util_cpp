@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cstdarg>
+#include <iostream>
 
 template <typename T>
 void printVec(std::vector<T> v){
