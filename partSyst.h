@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <limits.h>
+#include <random>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

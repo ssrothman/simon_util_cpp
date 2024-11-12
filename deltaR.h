@@ -2,7 +2,6 @@
 #define SIMON_UTIL_DR_H
 
 #include <math.h>
-#include "SRothman/armadillo-12.2.0/include/armadillo"
 #include "jets.h"
 
 inline double deltaphi(double phi1, double phi2){
@@ -15,10 +14,10 @@ inline double deltaphi(double phi1, double phi2){
     return dphi;
 }
 
-inline arma::vec deltaphi(const arma::vec& phi1, const arma::vec& phi2){
-    arma::vec dphi(phi1.n_elem, arma::fill::none);
+inline Eigen::VectorXd deltaphi(const Eigen::VectorXd& phi1, const Eigen::VectorXd& phi2){
+    Eigen::VectorXd dphi(phi1.rows());
 
-    for(unsigned i=0; i<dphi.n_elem; i++){
+    for(unsigned i=0; i<dphi.rows(); i++){
         dphi(i) = deltaphi(phi1(i), phi2(i));
     }
 
