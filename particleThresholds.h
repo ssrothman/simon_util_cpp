@@ -50,9 +50,11 @@ struct particleThresholds{
         } else if(isMU(part)){
             return MUthresholds[region];
         } else {
-            throw std::runtime_error(
+            /*throw std::runtime_error(
                     "particleThresholds::getThreshold: "
-                    "particle flavor not recognized");
+                    "particle flavor not recognized");*/
+            printf("WARNING: particleThresholds::getThreshold: "
+                    "particle flavor not recognized\n");
             return 0;
             
         }
