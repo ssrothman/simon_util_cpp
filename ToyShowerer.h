@@ -8,6 +8,61 @@
 #include <Math/Vector3D.h>
 #include <Math/Rotation3D.h>
 
+#include <iostream>
+#include <fstream>
+
+enum class phiPDF {
+    UNIFORM,
+    COS2PHI,
+};
+std::ostream& operator<<(std::ostream& os, const phiPDF& pdf){
+    switch(pdf){
+        case phiPDF::UNIFORM:
+            os << "UNIFORM";
+            break;
+        case phiPDF::COS2PHI:
+            os << "COS2PHI";
+            break;
+    }
+    return os;
+}
+
+enum class zPDF {
+    UNIFORM,
+    LNX,
+    GLUON,
+};
+std::ostream& operator<<(std::ostream& os, const zPDF& pdf){
+    switch(pdf){
+        case zPDF::UNIFORM:
+            os << "UNIFORM";
+            break;
+        case zPDF::LNX:
+            os << "LNX";
+            break;
+        case zPDF::GLUON:
+            os << "GLUON";
+            break;
+    }
+    return os;
+}
+
+enum class thetaPDF {
+    UNIFORM,
+    LNX
+};
+std::ostream& operator<<(std::ostream& os, const thetaPDF& pdf){
+    switch(pdf){
+        case thetaPDF::UNIFORM:
+            os << "UNIFORM";
+            break;
+        case thetaPDF::LNX:
+            os << "LNX";
+            break;
+    }
+    return os;
+}
+
 class LightweightParticle {
 public:
     //no default constructor
@@ -88,26 +143,18 @@ public:
                          std::string theta_mode,
                          double zcut,
                          double theta_min,
-                         double theta_max);
+                         double theta_max,
+                         std::string logfile = "");
 
     ToyShowerer() = delete;
-    ~ToyShowerer() {};
-
-    enum class phiPDF {
-        UNIFORM,
-        COS2PHI,
+    ~ToyShowerer() {
+        if(logging_) {
+            logfile_.close();
+        }
     };
 
-    enum class zPDF {
-        UNIFORM,
-        LNX,
-        GLUON,
-    };
 
-    enum class thetaPDF {
-        UNIFORM,
-        LNX
-    };
+    void enable_logging(std::string logfile);
 
     void shower(const double pt, 
                 const double eta, 
@@ -153,6 +200,9 @@ private:
 
     std::default_random_engine rng_;
     std::uniform_real_distribution<double> uniform_dist_;
+
+    std::ofstream logfile_;
+    bool logging_;
 };
 
 #endif

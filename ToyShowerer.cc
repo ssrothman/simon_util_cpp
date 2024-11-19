@@ -16,7 +16,8 @@ ToyShowerer::ToyShowerer(std::string phi_mode,
                          std::string theta_mode,
                          double zcut,
                          double theta_min,
-                         double theta_max) :
+                         double theta_max,
+                         std::string logfile) :
     zcut_(zcut),
     theta_min_(theta_min),
     theta_max_(theta_max),
@@ -51,6 +52,25 @@ ToyShowerer::ToyShowerer(std::string phi_mode,
 
     gluon_cdf_low_ = gluon_z_antiderivative(zcut_);
     gluon_cdf_norm_ = gluon_z_antiderivative(1.0-zcut_) - gluon_z_antiderivative(zcut_);
+
+    if (logfile != ""){
+        enable_logging(logfile);
+    } else {
+        logging_ = false;
+    }
+}
+
+void ToyShowerer::enable_logging(std::string logfile){
+    logfile_.open(logfile);
+    logging_ = true;
+    logfile_ << "phi_mode = " << phi_mode_ << std::endl;
+    logfile_ << "z_mode = " << z_mode_ << std::endl;
+    logfile_ << "theta_mode = " << theta_mode_ << std::endl;
+    logfile_ << "zcut = " << zcut_ << std::endl;
+    logfile_ << "theta_min = " << theta_min_ << std::endl;
+    logfile_ << "theta_max = " << theta_max_ << std::endl;
+    logfile_ << std::endl;
+    logfile_ << "z     ,\ttheta ,\tphi   " << std::endl;
 }
 
 double ToyShowerer::cos2phi(const double phi){
@@ -296,6 +316,12 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
     double theta = sample_theta(); //decay opening angle
     double phi = sample_phi(); //decay azimuthal angle
 
+    if (logging_){
+        logfile_ << std::fixed << std::setprecision(6) << z << ",\t";
+        logfile_ << std::fixed << std::setprecision(6) << theta << ",\t";
+        logfile_ << std::fixed << std::setprecision(6) << phi << std::endl;
+    }
+
     /*
      * total momenta of the daughters:
      * p1 = z p
@@ -346,19 +372,19 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
     //printf("\t\talpha = %f\n", alpha);
 
     ROOT::Math::XYZVector mothervec(mother.px(), mother.py(), mother.pz());
-    ROOT::Math::XYZVector axisvec(mother.dpx(), mother.dpy(), mother.dpz());
+    ROOT::Math::XYZVector dipolevec(mother.dpx(), mother.dpy(), mother.dpz());
 
     ROOT::Math::Rotation3D rotate_axis;
     get_rotation_about_axis(mothervec, phi, rotate_axis);
-    axisvec = rotate_axis*axisvec;
+    dipolevec = rotate_axis*dipolevec;
 
     ROOT::Math::Rotation3D rotate_alpha;
-    get_rotation_about_axis(axisvec, -alpha, rotate_alpha);
+    get_rotation_about_axis(dipolevec, -alpha, rotate_alpha);
     ROOT::Math::XYZVector p1vec = rotate_alpha*(z*mothervec);
     //printf("\t\tp1vec.R() = %f\n", p1vec.R());
 
     ROOT::Math::Rotation3D rotate_beta;
-    get_rotation_about_axis(axisvec, theta-alpha, rotate_beta);
+    get_rotation_about_axis(dipolevec, theta-alpha, rotate_beta);
     ROOT::Math::XYZVector p2vec = rotate_beta*(y*mothervec);
     //printf("\t\tp2vec.R() = %f\n", p2vec.R());
 
@@ -376,8 +402,14 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
     //printf("\t\tangle between p2 and mother = %f\n", std::acos(cos_angle3));
     */
 
-    particles.emplace(p1vec, axisvec);
-    particles.emplace(p2vec, axisvec);
+    //test
+    double p1dot = p1vec.Dot(dipolevec);
+    double p2dot = p2vec.Dot(dipolevec);
+    //printf("\t\tp1dot = %f\n", p1dot);
+    //printf("\t\tp2dot = %f\n", p2dot);
+
+    particles.emplace(p1vec, dipolevec);
+    particles.emplace(p2vec, dipolevec);
     //printf("Queue contents after splitting:\n");
     //print_queue_contents(particles);
     //printf("\n");
@@ -392,18 +424,32 @@ void ToyShowerer::shower(const double pt,
 
     particle_queue particles;
 
-    //random initial dipole axis
-    double dtheta = uniform_dist_(rng_) * M_PI;
-    double dphi = uniform_dist_(rng_) * 2*M_PI;
-
-    double dx = std::sin(dtheta)*std::cos(dphi);
-    double dy = std::sin(dtheta)*std::sin(dphi);
-    double dz = std::cos(dtheta);
-    
     //pt, eta, phi to cartesian
     double px = pt*std::cos(phi);
     double py = pt*std::sin(phi);
     double pz = pt*std::sinh(eta);
+
+    //generate dipole axis perp to momentum
+    double dx = std::cos(M_PI/2 - phi);
+    double dy = std::sin(M_PI/2 - phi);
+    double dz = 0;
+
+    double dipole_rotation_angle = uniform_dist_(rng_)*2*M_PI;
+    ROOT::Math::Rotation3D rotate_dipole;
+    get_rotation_about_axis(ROOT::Math::XYZVector(px, py, pz), 
+                            dipole_rotation_angle, 
+                            rotate_dipole);
+    ROOT::Math::XYZVector dipolevec(dx, dy, dz);
+    dipolevec = rotate_dipole*dipolevec;
+
+    dx = dipolevec.x();
+    dy = dipolevec.y();
+    dz = dipolevec.z();
+
+    //TEST
+    //printf("Initial dipole axis: (%f, %f, %f)\n", dx, dy, dz);
+    //printf("Initial momentum: (%f, %f, %f)\n", px, py, pz);
+    //printf("dot = %f\n", dx*px + dy*py + dz*pz);
 
     particles.emplace(px, py, pz, dx, dy, dz);
 
