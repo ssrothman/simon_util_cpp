@@ -70,7 +70,7 @@ void ToyShowerer::enable_logging(std::string logfile){
     logfile_ << "theta_min = " << theta_min_ << std::endl;
     logfile_ << "theta_max = " << theta_max_ << std::endl;
     logfile_ << std::endl;
-    logfile_ << "z     ,\ttheta ,\tphi   " << std::endl;
+    logfile_ << "z       ,\ttheta   ,\tphi     \talpha   \ta12     \tam1     \tam2     \tad1     \tad2     \tadm     \taddm    " << std::endl;
 }
 
 double ToyShowerer::cos2phi(const double phi){
@@ -128,10 +128,6 @@ void ToyShowerer::test_cos2phi(const size_t N, const int bins){
     printf("\n");
 }
 
-double ToyShowerer::sample_phi_uniform(){
-    return 2*M_PI*uniform_dist_(rng_);
-}
-
 double ToyShowerer::sample_lnx(double min, double max){
     double uniform = uniform_dist_(rng_);
     double logmin = std::log(min);
@@ -178,7 +174,7 @@ void ToyShowerer::test_lnx(const size_t N, const int bins,
 double ToyShowerer::sample_phi(){
     switch (phi_mode_){
         case phiPDF::UNIFORM:
-            return sample_phi_uniform();
+            return uniform_dist_(rng_) * 2 * M_PI;
         case phiPDF::COS2PHI:
             return sample_cos2phi();
         default:
@@ -316,12 +312,6 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
     double theta = sample_theta(); //decay opening angle
     double phi = sample_phi(); //decay azimuthal angle
 
-    if (logging_){
-        logfile_ << std::fixed << std::setprecision(6) << z << ",\t";
-        logfile_ << std::fixed << std::setprecision(6) << theta << ",\t";
-        logfile_ << std::fixed << std::setprecision(6) << phi << std::endl;
-    }
-
     /*
      * total momenta of the daughters:
      * p1 = z p
@@ -349,14 +339,6 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
     double p1 = z*p;
     double p2 = y*p;
 
-    /*printf("Running a splitting on mother particle with p_tot = %f\n", p);
-    printf("\tz = %f\n", z);
-    printf("\ty = %f\n", y);
-    printf("\ttheta = %f\n", theta);
-    printf("\tphi = %f\n", phi);
-    printf("\t\tp1 = %f\n", p1);
-    printf("\t\tp2 = %f\n", p2);*/
-
     /*
      * need to get the angles of the daughters w.r.t. the mother axis
      * the math is:
@@ -369,7 +351,6 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
      */
     double cos_alpha = (p1 + p2*ct)/p;
     double alpha = std::acos(cos_alpha);
-    //printf("\t\talpha = %f\n", alpha);
 
     ROOT::Math::XYZVector mothervec(mother.px(), mother.py(), mother.pz());
     ROOT::Math::XYZVector dipolevec(mother.dpx(), mother.dpy(), mother.dpz());
@@ -381,38 +362,49 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
     ROOT::Math::Rotation3D rotate_alpha;
     get_rotation_about_axis(dipolevec, -alpha, rotate_alpha);
     ROOT::Math::XYZVector p1vec = rotate_alpha*(z*mothervec);
-    //printf("\t\tp1vec.R() = %f\n", p1vec.R());
 
     ROOT::Math::Rotation3D rotate_beta;
     get_rotation_about_axis(dipolevec, theta-alpha, rotate_beta);
     ROOT::Math::XYZVector p2vec = rotate_beta*(y*mothervec);
-    //printf("\t\tp2vec.R() = %f\n", p2vec.R());
 
-    //test
-    /*double dot = p1vec.Dot(p2vec);
-    double cos_angle = dot/(p1vec.R()*p2vec.R());
-    //printf("\t\tangle between p1 and p2 = %f\n", std::acos(cos_angle));
-    
-    double dot2 = p1vec.Dot(mothervec);
-    double cos_angle2 = dot2/(p1vec.R()*mothervec.R());
-    //printf("\t\tangle between p1 and mother = %f\n", std::acos(cos_angle2));
+    if (logging_){
+        logfile_ << std::fixed << std::setprecision(6) << z << ",\t";
+        logfile_ << std::fixed << std::setprecision(6) << theta << ",\t";
+        logfile_ << std::fixed << std::setprecision(6) << phi << ",\t";
+        logfile_ << std::fixed << std::setprecision(6) << alpha << ",\t";
 
-    double dot3 = p2vec.Dot(mothervec);
-    double cos_angle3 = dot3/(p2vec.R()*mothervec.R());
-    //printf("\t\tangle between p2 and mother = %f\n", std::acos(cos_angle3));
-    */
+        double d12 = p1vec.Dot(p2vec);
+        double a12 = std::acos(d12/(p1vec.R()*p2vec.R()));
+        logfile_ << std::fixed << std::setprecision(6) << a12 << ",\t";
 
-    //test
-    double p1dot = p1vec.Dot(dipolevec);
-    double p2dot = p2vec.Dot(dipolevec);
-    //printf("\t\tp1dot = %f\n", p1dot);
-    //printf("\t\tp2dot = %f\n", p2dot);
+        double dm1 = p1vec.Dot(mothervec);
+        double am1 = std::acos(dm1/(p1vec.R()*mothervec.R()));
+        logfile_ << std::fixed << std::setprecision(6) << am1 << ",\t";
+
+        double dm2 = p2vec.Dot(mothervec);
+        double am2 = std::acos(dm2/(p2vec.R()*mothervec.R()));
+        logfile_ << std::fixed << std::setprecision(6) << am2 << ",\t";
+
+        double dd1 = p1vec.Dot(dipolevec);
+        double ad1 = std::acos(dd1/(p1vec.R()*dipolevec.R()));
+        logfile_ << std::fixed << std::setprecision(6) << ad1 << ",\t";
+
+        double dd2 = p2vec.Dot(dipolevec);
+        double ad2 = std::acos(dd2/(p2vec.R()*dipolevec.R()));
+        logfile_ << std::fixed << std::setprecision(6) << ad2 << ",\t";
+
+        double ddm = dipolevec.Dot(mothervec);
+        double adm = std::acos(ddm/(dipolevec.R()*mothervec.R()));
+        logfile_ << std::fixed << std::setprecision(6) << adm << ",\t";
+
+        ROOT::Math::XYZVector mdp(mother.dpx(), mother.dpy(), mother.dpz());
+        double dddm = dipolevec.Dot(mdp);
+        double addm = std::acos(dddm/(dipolevec.R()*mdp.R()));
+        logfile_ << std::fixed << std::setprecision(6) << addm << std::endl;
+    }
 
     particles.emplace(p1vec, dipolevec);
     particles.emplace(p2vec, dipolevec);
-    //printf("Queue contents after splitting:\n");
-    //print_queue_contents(particles);
-    //printf("\n");
 }
 
 void ToyShowerer::shower(const double pt, 
@@ -445,11 +437,6 @@ void ToyShowerer::shower(const double pt,
     dx = dipolevec.x();
     dy = dipolevec.y();
     dz = dipolevec.z();
-
-    //TEST
-    //printf("Initial dipole axis: (%f, %f, %f)\n", dx, dy, dz);
-    //printf("Initial momentum: (%f, %f, %f)\n", px, py, pz);
-    //printf("dot = %f\n", dx*px + dy*py + dz*pz);
 
     particles.emplace(px, py, pz, dx, dy, dz);
 

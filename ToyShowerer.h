@@ -170,7 +170,6 @@ private:
     double cos2phi(const double phi);
     double cos2phi_cdf(const double phi);
     double sample_cos2phi();
-    double sample_phi_uniform();
     double sample_phi();
 
     double lnx_cdf(const double x, const double min, const double max);
