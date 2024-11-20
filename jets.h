@@ -64,6 +64,8 @@ struct jet{
 
     double eta, phi;
 
+    double mass;
+
     unsigned nPart;
     std::vector<particle> particles;
     unsigned iJet;
@@ -77,6 +79,7 @@ struct jet{
     jet() :
         pt(0), sumpt(0), rawpt(0),
         eta(0), phi(0), 
+        mass(0),
         nPart(0), particles(),
         iJet(9999),
         nEM0(0), nHAD0(0), nHADCH(0), 
