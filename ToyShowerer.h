@@ -159,7 +159,6 @@ public:
     void shower(const double pt, 
                 const double eta, 
                 const double phi, 
-                const double mass, 
                 const unsigned Npart,
                 jet& result);
 

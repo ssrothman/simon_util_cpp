@@ -1,7 +1,7 @@
 #include "ToyShowerer.h"
 #include "util.h"
 
-static void print_queue_contents(const std::priority_queue<LightweightParticle>& particles){
+/*static void print_queue_contents(const std::priority_queue<LightweightParticle>& particles){
     auto tmp = particles;
     while (!tmp.empty()){
         const LightweightParticle& particle = tmp.top();
@@ -9,7 +9,7 @@ static void print_queue_contents(const std::priority_queue<LightweightParticle>&
         printf("\tp_tot = %f\n", p_tot);
         tmp.pop();
     }
-}
+}*/
 
 ToyShowerer::ToyShowerer(std::string phi_mode,
                          std::string z_mode,
@@ -206,7 +206,7 @@ double ToyShowerer::sample_gluon_z(){
     double low = zcut_;
     double high = 1.0 - zcut_;
     
-    double mid;
+    double mid=(low+high)/2;
 
     while(high - low > tol){
         mid = (low + high) / 2;
@@ -410,7 +410,6 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
 void ToyShowerer::shower(const double pt, 
                     const double eta,
                     const double phi,
-                    const double mass,
                     const unsigned Npart,
                     jet& result){
 

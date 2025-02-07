@@ -5,9 +5,8 @@
 #include <math.h>
 #include <cmath>
 #include <Eigen/Dense>
-//#include <boost/math/ccmath/ccmath.hpp>
 
-struct particle{
+struct simon_particle{
     double pt, eta, phi;
     double dpt, deta, dphi;
     unsigned pdgid; //absolute value
@@ -19,7 +18,7 @@ struct particle{
     int fromPV;
     double puppiweight;
 
-    particle(double pt, double eta, double phi):
+    simon_particle(double pt, double eta, double phi):
         pt(pt), eta(eta), phi(phi),
         dpt(-1), deta(-1), dphi(-1),
         pdgid(0), charge(0),
@@ -27,7 +26,7 @@ struct particle{
         dxy(9999), dz(9999),
         fromPV(9999), puppiweight(9999) {}
 
-    particle(double pt, double eta, double phi,
+    simon_particle(double pt, double eta, double phi,
              double dpt, double deta, double dphi,
              unsigned pdgid, int charge):
         pt(pt), eta(eta), phi(phi),
@@ -37,7 +36,7 @@ struct particle{
         dxy(9999), dz(9999),
         fromPV(9999), puppiweight(9999) {}
 
-    particle(double pt, double eta, double phi,
+    simon_particle(double pt, double eta, double phi,
              unsigned pdgid, int charge,
              double vtx_x, double vtx_y, double vtx_z,
              double dxy, double dz,
@@ -49,7 +48,7 @@ struct particle{
         dxy(dxy), dz(dz),
         fromPV(fromPV), puppiweight(puppiweight) {}
 
-    particle() :
+    simon_particle() :
         pt(0), eta(0), phi(0),
         dpt(0), deta(0), dphi(0), 
         pdgid(0), charge(0),
@@ -59,7 +58,7 @@ struct particle{
 };
 
 
-struct jet{
+struct simon_jet{
     double pt, sumpt, rawpt;
 
     double eta, phi;
@@ -67,7 +66,7 @@ struct jet{
     double mass;
 
     unsigned nPart;
-    std::vector<particle> particles;
+    std::vector<simon_particle> particles;
     unsigned iJet;
 
     //extras
@@ -76,7 +75,7 @@ struct jet{
     std::vector<unsigned> iCHS;
     unsigned iSV;
 
-    jet() :
+    simon_jet() :
         pt(0), sumpt(0), rawpt(0),
         eta(0), phi(0), 
         mass(0),
