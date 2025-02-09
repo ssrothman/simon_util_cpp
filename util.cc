@@ -1,5 +1,7 @@
 #include "util.h"
 
+using namespace simon;
+
 const std::string vformat(const char * const zcFormat, ...) {
 
   // initialize use of the variable argument array

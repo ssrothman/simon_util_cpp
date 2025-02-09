@@ -11,6 +11,8 @@
     }
 }*/
 
+using namespace simon;
+
 ToyShowerer::ToyShowerer(std::string phi_mode,
                          std::string z_mode,
                          std::string theta_mode,

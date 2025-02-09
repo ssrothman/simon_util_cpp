@@ -1,3 +1,10 @@
-#include "jets.h"
+#ifndef SIMON_TOOLS_COMPUTEJETMASS_H
+#define SIMON_TOOLS_COMPUTEJETMASS_H
 
-void computeJetMass(jet& thejet);
+#include "jet.h"
+
+namespace simon {
+    void computeJetMass(jet& thejet);
+};
+
+#endif

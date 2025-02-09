@@ -6,7 +6,7 @@
 
 #include <boost/container_hash/hash.hpp>
 
-int fact(int n) {
+int simon::fact(int n) {
   int result = 1;
   for (int i = 2; i < n + 1; ++i) {
     result *= i;
@@ -14,22 +14,24 @@ int fact(int n) {
   return result;
 }
 
-unsigned getFactor(const unsigned N, const std::vector<unsigned>& composition){
-    unsigned result = fact(N);
+static unsigned getFactor(const unsigned N, const std::vector<unsigned>& composition){
+    unsigned result = simon::fact(N);
     for(const unsigned& i : composition){
-        result /= fact(i);
+        result /= simon::fact(i);
     }
     return result;
 }
 
-void fillCompositions(const int n, comp_t& out) {
+void simon::fillCompositions(const int n, comp_t& out) {
   out.clear();
   for (int i = 0; i < n; ++i) {
     std::vector<comp> next;
     out.push_back(next);
   }
 
-  int a[n + 1];
+  std::vector<int> q(n + 1);
+  int* a = q.data();
+
   int k, y, x, l;
   for (int q = 0; q < n + 1; ++q) {
     a[q] = 0;
@@ -76,7 +78,7 @@ void fillCompositions(const int n, comp_t& out) {
   }
 }
 
-size_t choose(int n, int k) {
+size_t simon::choose(int n, int k) {
     /*static std::unordered_map<std::pair<int, int>, size_t, boost::hash<std::pair<int,int>>> cache;*/
   if (k > n)
     return 0;
@@ -101,7 +103,7 @@ size_t choose(int n, int k) {
   return result;
 }
 
-size_t simp(const size_t nPart, const size_t order){
+size_t simon::simp(const size_t nPart, const size_t order){
   size_t result = 1;
   for(unsigned i=0; i<(unsigned)order; ++i){
     result *= (nPart - i);
@@ -111,7 +113,7 @@ size_t simp(const size_t nPart, const size_t order){
   return result;
 }
 
-size_t getNodiagIdx(const std::vector<unsigned>& ord,
+size_t simon::getNodiagIdx(const std::vector<unsigned>& ord,
                     const unsigned N, const unsigned dim,
                     const unsigned istart, const unsigned off){
     if(dim == 0){
