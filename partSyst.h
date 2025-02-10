@@ -239,8 +239,8 @@ namespace simon{
                     return true;}
                 case TRK_EFF_DR:
                    {if(part.charge !=0){
-                        double deltaR = dR(jetEta, jetPhi, part.eta, part.phi);
-                        int bin = getEtaRegion(deltaR, DRtrkDropEdges);
+                        double dR = deltaR(jetEta, jetPhi, part.eta, part.phi);
+                        int bin = getEtaRegion(dR, DRtrkDropEdges);
                         double prob = DRtrkDropProbs.at(bin);
                         if(rand(rng) < prob){
                             if(isMU(part)){
