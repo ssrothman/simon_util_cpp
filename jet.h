@@ -63,6 +63,7 @@ namespace simon{
         double pt, sumpt, rawpt;
 
         double eta, phi;
+        int charge;
 
         double mass;
 
