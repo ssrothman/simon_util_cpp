@@ -8,6 +8,11 @@ namespace simon{
     unsigned getIndex(const T& val, const boost::histogram::axis::variable<T>& ax){
         return static_cast<unsigned>(ax.index(val) + 1);
     }
+
+    template <typename AX>
+    unsigned AXextent(const AX& ax){
+        return boost::histogram::axis::traits::extent(ax);
+    }
 }
 
 #endif
