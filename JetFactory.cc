@@ -8,6 +8,7 @@ void JetFactory::initialize(){
     rng.seed(0);
     norm = std::normal_distribution<double>(0, 0.4);
     gamma = std::gamma_distribution<double>(2, 2);
+    unif = std::uniform_real_distribution<double>(0, 1);
 }
 
 void JetFactory::makeJet(simon::jet& J, const int nPart){
@@ -61,5 +62,12 @@ void JetFactory::makeTransferJet(const simon::jet& J1, simon::jet& J2, Eigen::Ma
         J2.rawpt += pt;
 
         tmat(i, i) = 1;
+    }
+}
+
+void JetFactory::makeMatchedVec(const simon::jet& J, std::vector<bool>& matched, double prob){
+    matched.clear();
+    for(unsigned i=0; i<J.nPart; ++i){
+        matched.push_back(unif(rng) < prob);
     }
 }
