@@ -72,6 +72,9 @@ namespace simon{
             const pairentry_resolved<distances_squared>& pair1,
             const pairentry_resolved<distances_squared>& pair2) noexcept {
 
+        if(pair1.floatDR == 0 || pair2.floatDR == 0){
+            return 0;
+        }
         double dot = pair1.deta*pair2.deta + pair1.dphi*pair2.dphi;
         
         double cosphi;

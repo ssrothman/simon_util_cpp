@@ -11,6 +11,10 @@ namespace simon{
     template <typename T>
     inline void merge_particles(const T& p1, const T& p2,
                                 T& result){
+        if (p1.eta == p2.eta && p1.phi == p2.phi && p1.pt == p2.pt){
+            result = p1;
+            return;
+        }
         result.pt = p1.pt + p2.pt;
         result.eta = (p1.pt*p1.eta + p2.pt*p2.eta) / result.pt;
         result.phi = (p1.pt*p1.phi + p2.pt*p2.phi) / result.pt;
@@ -289,10 +293,12 @@ namespace simon{
         } else {
             topologyflag = CHAIN;
             //then we need to return an extra pair
-            return_pairs.push_back(r2p3);
             //and also the order of p3, p4 matters
             if (bkp == 0){
                 std::swap(return_indices[2], return_indices[3]);
+                return_pairs.push_back(r2p4);
+            } else {
+                return_pairs.push_back(r2p3);
             }
         }
     }
