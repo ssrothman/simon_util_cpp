@@ -81,6 +81,20 @@ namespace simon{
             cosphi = dot / (pair1.floatDR * pair2.floatDR);
         }
 
+        if(cosphi > 1){
+            if (cosphi > 1.001){
+                printf("uh oh.... cosphi-1 = %0.2g\n", cosphi-1);
+                assert(false);
+            }
+            cosphi = 1;
+        } else if (cosphi < -1){
+            if (cosphi < -1.001){
+                printf("uh oh.... cosphi+1 = %0.2g\n", cosphi+1);
+                assert(false);
+            }
+            cosphi = -1;
+        }
+
         double angle = std::acos(cosphi);
         if (angle > M_PI/2){
             angle = M_PI - angle;

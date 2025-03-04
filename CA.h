@@ -100,16 +100,14 @@ namespace simon{
         //use the bookkeeping index to track which
         //particle is NOT in the pair
         const std::array<indexedPair<distances_squared>, 3> indexed_dRs = {
-            indexedPair<distances_squared>(&p1p2, 0, 1, 0),
+            indexedPair<distances_squared>(&p1p2, 0, 1, 2),
             indexedPair<distances_squared>(&p1p3, 0, 2, 1),
-            indexedPair<distances_squared>(&p2p3, 1, 2, 2)
+            indexedPair<distances_squared>(&p2p3, 1, 2, 0)
         };
 
         runCA(particles, indexed_dRs, r, bkpindex);
 
         const T* p3 = particles[bkpindex];
-        merge_particles(*particles[0], *particles[1], r);
-
         rp3 = simon::pairentry_resolved<distances_squared>(r, *p3);
         merge_particles(r, *p3, R);
     }
@@ -252,7 +250,7 @@ namespace simon{
         return_indices[0] = merged.i;
         return_indices[1] = merged.j;
 
-        //the first merged pair ps p1p2,
+        //the first merged pair is p1p2,
         //so we also want to store than in return_orig_pairs
         return_orig_pairs.resize(1);
         return_orig_pairs[0] = merged.entry;
@@ -265,7 +263,7 @@ namespace simon{
         simon::pairentry_resolved<distances_squared> r2p4(r2, *p4);
 
         /*
-         * CA3 will give us wither r1r2 or r1p4
+         * CA3 will give us either r1r2 or r1p4
          * depending on whether we are chain or symmetric
          * in either case the pair wants to be the first one
          * in the return_pairs vector
@@ -277,7 +275,7 @@ namespace simon{
         return_pairs.resize(1);
         CA3(
             three_particles,
-            p3p4, r2p3, r2p4,
+            *opposite.entry, r2p3, r2p4,
             r1, R, 
             return_pairs[0],
             bkp
