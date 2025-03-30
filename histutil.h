@@ -4,8 +4,8 @@
 #include <boost/histogram.hpp>
 
 namespace simon{
-    template <typename T>
-    unsigned getIndex(const T& val, const boost::histogram::axis::variable<T>& ax){
+    template <typename T, typename AX>
+    unsigned getIndex(const T& val, const AX& ax){
         return static_cast<unsigned>(ax.index(val) + 1);
     }
 
