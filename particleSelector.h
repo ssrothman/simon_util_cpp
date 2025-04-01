@@ -83,6 +83,7 @@ namespace simon{
             ELEthreshold(conf.getParameter<std::string>("ELEthreshold")),
             MUthreshold(conf.getParameter<std::string>("MUthreshold")),
             HADCHthreshold(conf.getParameter<std::string>("HADCHthreshold")),
+            requireVertex(conf.getParameter<std::string>("requireVertex")),
             applyPuppi(conf.getParameter<bool>("applyPuppi")),
             onlyCharged(conf.getParameter<bool>("onlyCharged")) {}
 
@@ -96,6 +97,7 @@ namespace simon{
             desc.add<std::string>("ELEthreshold");
             desc.add<std::string>("MUthreshold");
             desc.add<std::string>("HADCHthreshold");
+            desc.add<std::string>("requireVertex");
 
             desc.add<bool>("applyPuppi");
             desc.add<bool>("onlyCharged");
