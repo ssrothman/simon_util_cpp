@@ -275,29 +275,29 @@ namespace simon{
                 nextpart.pt *= CHfactor;
             }
 
-            if (onlyCharged && partptr->charge() == 0){
+            if (onlyCharged && nextpart.charge== 0){
                 return false;
             }
 
             //apply thresholds
-            if(pdgid==11 && nextpt < ELEthreshold){
+            if(nextpart.pdgid==11 && nextpart.pt < ELEthreshold){
                 return false;
             }
-            if(pdgid==13 && nextpt < MUthreshold){
+            if(nextpart.pdgid==13 && nextpart.pt < MUthreshold){
                 return false;
             }
-            if(pdgid==22 && nextpt < EM0threshold){
+            if(nextpart.pdgid==22 && nextpart.pt < EM0threshold){
                 return false;
             }
-            if(pdgid >=100 && partptr->charge() ==0 && nextpt < HAD0threshold){
+            if(nextpart.pdgid >=100 && nextpart.charge ==0 && nextpart.pt < HAD0threshold){
                 return false;
             }
-            if(pdgid >=100 && partptr->charge() !=0 && nextpt < HADCHthreshold){
+            if(nextpart.pdgid >=100 && nextpart.charge !=0 && nextpart.pt < HADCHthreshold){
                 return false;
             }
 
             //apply vertexing cuts
-            if(std::abs(dz) < maxDZ || std::abs(dxy) < maxDXY 
+            if(std::abs(dz) > maxDZ || std::abs(dxy) > maxDXY 
                     || puppiWeight < minPuppiWt || fromPV < minFromPV){
                 return false;
             }
@@ -350,8 +350,8 @@ namespace simon{
                         ++result.nHAD0;
                     } else {
                         printf("WARNING: Unknown pdgid\n");
-                        printf("pdgid: %u charge: %d\n", std::abs(part->pdgId()), part->charge());
-                        printf("pt: %f eta: %f phi: %f\n", part->pt(), part->eta(), part->phi());
+                        printf("pdgid: %u charge: %d\n", nextpart.pdgid, nextpart.charge);
+                        printf("pt: %f eta: %f phi: %f\n", nextpart.pt, nextpart.eta, nextpart.phi);
                         printf("\n");
                     }
                 }
