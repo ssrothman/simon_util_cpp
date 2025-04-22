@@ -103,11 +103,11 @@ namespace simon{
 
         //use the bookkeeping index to track which
         //particle is NOT in the pair
-        const std::array<indexedPair<distances_squared>, 3> indexed_dRs = {
+        const std::array<indexedPair<distances_squared>, 3> indexed_dRs = {{
             indexedPair<distances_squared>(&p1p2, 0, 1, 2),
             indexedPair<distances_squared>(&p1p3, 0, 2, 1),
             indexedPair<distances_squared>(&p2p3, 1, 2, 0)
-        };
+        }};
 
         runCA(particles, indexed_dRs, r, bkpindex);
 
@@ -229,14 +229,14 @@ namespace simon{
         //use the bookkeeping index to track the index
         //of the pair that does not overlap 
         //with the current pair
-        const std::array<indexedPair<distances_squared>, 6> indexed_dRs = {
+        const std::array<indexedPair<distances_squared>, 6> indexed_dRs = {{
             indexedPair<distances_squared>(&p1p2, 0, 1, 5),
             indexedPair<distances_squared>(&p1p3, 0, 2, 4),
             indexedPair<distances_squared>(&p1p4, 0, 3, 3),
             indexedPair<distances_squared>(&p2p3, 1, 2, 2),
             indexedPair<distances_squared>(&p2p4, 1, 3, 1),
             indexedPair<distances_squared>(&p3p4, 2, 3, 0)
-        };
+        }};
 
         unsigned bkp;
         runCA(particles, indexed_dRs, r2, bkp);
@@ -260,9 +260,9 @@ namespace simon{
         return_orig_pairs[0] = merged.entry;
 
         //now we set up to call CA3
-        const std::array<const T*, 3> three_particles = {
+        const std::array<const T*, 3> three_particles = {{
             p3, p4, &r2
-        };
+        }};
         simon::pairentry_resolved<distances_squared> r2p3(r2, *p3);
         simon::pairentry_resolved<distances_squared> r2p4(r2, *p4);
 
