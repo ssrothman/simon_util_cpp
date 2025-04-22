@@ -51,9 +51,23 @@ void JetFactory::makeTransferJet(const simon::jet& J1, simon::jet& J2, Eigen::Ma
     }
 
     for (unsigned i=0; i<J1.nPart; ++i){
-        double pt = J1.particles[i].pt;
-        double phi = J1.particles[i].phi;
-        double eta = J1.particles[i].eta;
+        double pt, eta, phi;
+        double ptsmear;
+
+        if (unif(rng) < 0.10){
+            pt = gamma(rng);
+            phi = norm(rng);
+            eta = norm(rng);
+
+            ptsmear = 0;
+        } else {
+            pt = J1.particles[i].pt;
+            phi = J1.particles[i].phi + norm(rng)/10;
+            eta = J1.particles[i].eta + norm(rng)/10;
+
+            ptsmear = norm(rng)/10 + 1;
+            pt *= ptsmear;
+        }
 
         ++J2.nPart;
         J2.particles.emplace_back(pt, eta, phi);
@@ -61,7 +75,7 @@ void JetFactory::makeTransferJet(const simon::jet& J1, simon::jet& J2, Eigen::Ma
         J2.pt += pt;
         J2.rawpt += pt;
 
-        tmat(i, i) = 1;
+        tmat(i, i) = ptsmear;
     }
 }
 
