@@ -145,6 +145,7 @@ namespace simon{
                              double zcut,
                              double theta_min,
                              double theta_max,
+                             bool angular_ordered,
                              std::string logfile = "");
 
         ToyShowerer() = delete;
@@ -187,7 +188,8 @@ namespace simon{
                                      const double angle, 
                                      ROOT::Math::Rotation3D& result);
 
-        void do_one_splitting(particle_queue& particles);
+        void do_one_splitting(particle_queue& particles,
+                double z, double theta, double phi);
 
         phiPDF phi_mode_;
         zPDF z_mode_;
@@ -202,6 +204,8 @@ namespace simon{
 
         std::ofstream logfile_;
         bool logging_;
+
+        bool angular_ordered_;
     };
 };
 

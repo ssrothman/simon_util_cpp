@@ -19,12 +19,14 @@ ToyShowerer::ToyShowerer(std::string phi_mode,
                          double zcut,
                          double theta_min,
                          double theta_max,
+                         bool angular_ordered,
                          std::string logfile) :
     zcut_(zcut),
     theta_min_(theta_min),
     theta_max_(theta_max),
     rng_(std::random_device()()),
-    uniform_dist_(0.0, 1.0)
+    uniform_dist_(0.0, 1.0),
+    angular_ordered_(angular_ordered)
 {
     if (phi_mode == "UNIFORM"){
         phi_mode_ = phiPDF::UNIFORM;
@@ -295,7 +297,8 @@ void ToyShowerer::get_rotation_about_axis(const ROOT::Math::XYZVector& axis,
     );
 }
 
-void ToyShowerer::do_one_splitting(particle_queue& particles){
+void ToyShowerer::do_one_splitting(particle_queue& particles,
+                                   double z, double theta, double phi){
     /*
      * The strategy here will be as simple and stupid as I can bear
      * Plan: completely ignore the masses of the particles 
@@ -309,10 +312,6 @@ void ToyShowerer::do_one_splitting(particle_queue& particles){
      */
     const LightweightParticle mother = particles.top();
     particles.pop();
-
-    double z = sample_z(); //momentum fraction carried by particle 1
-    double theta = sample_theta(); //decay opening angle
-    double phi = sample_phi(); //decay azimuthal angle
 
     /*
      * total momenta of the daughters:
@@ -441,8 +440,22 @@ void ToyShowerer::shower(const double pt,
 
     particles.emplace(px, py, pz, dx, dy, dz);
 
-    while(particles.size() < Npart){
-        do_one_splitting(particles);
+    std::vector<double> zs(Npart-1);
+    std::vector<double> thetas(Npart-1);
+    std::vector<double> phis(Npart-1);
+
+    for (unsigned i=0; i<Npart-1; ++i){
+        zs[i] = sample_z();
+        thetas[i] = sample_theta();
+        phis[i] = sample_phi();
+    }
+
+    if (angular_ordered_){
+        std::sort(phis.begin(), phis.end(), std::greater<double>());
+    }
+
+    for (unsigned i=0; i<Npart-1; ++i){
+        do_one_splitting(particles, zs[i], thetas[i], phis[i]);
     }
 
     while (!particles.empty()){
