@@ -62,8 +62,8 @@ void JetFactory::makeTransferJet(const simon::jet& J1, simon::jet& J2, Eigen::Ma
             ptsmear = 0;
         } else {
             pt = J1.particles[i].pt;
-            phi = J1.particles[i].phi + norm(rng)/10;
-            eta = J1.particles[i].eta + norm(rng)/10;
+            phi = J1.particles[i].phi + norm(rng)/5;
+            eta = J1.particles[i].eta + norm(rng)/5;
 
             ptsmear = norm(rng)/10 + 1;
             pt *= ptsmear;
