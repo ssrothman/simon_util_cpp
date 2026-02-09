@@ -176,9 +176,6 @@ inline void hardest_splitting_info(const simon::jet & j,
         info.pt2 = declus123.pt1;
         info.pt3 = declus123.pt2;
 
-        printf("difference between two different ways of getting pt2: %g\n",
-               declus123.pt1 - declus245.pt);
-
         info.pt4 = declus245.pt1;
         info.pt5 = declus245.pt2;
 
