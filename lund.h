@@ -23,6 +23,31 @@ struct Declustering {
     double pt1, pt2, delta_R, z, kt, varphi;
 };
 
+/*
+ This struct holds information about the hardest splitting 
+ in the jet C/A declustering sequence, 
+ as defined for the primary Lund plane.
+
+ The diagram looks like
+ 
+         4
+        /
+       /
+      2  
+     / \ 
+    /   \
+   1     5
+    \ 
+     \
+      3
+*/
+struct SplittingInfo { 
+    double pt1, pt2, pt3, pt4, pt5;
+    double delta_R23, z23, kt23, phi23;
+    double delta_R45, z45, kt45, phi45;
+    double deltaPsi;
+};
+
 inline std::vector<Declustering>  jet_declusterings(const fastjet::PseudoJet & jet_in){
     fastjet::Recluster rc(fastjet::cambridge_algorithm);
     fastjet::PseudoJet j = rc.result(jet_in);
@@ -91,7 +116,9 @@ inline double deltaPsi(std::vector< Declustering> clust){
     return deltaVarPhi;
 }
 
-inline double get_dpsi(const simon::jet & j){
+inline void hardest_splitting_info(const simon::jet & j,
+                                   struct SplittingInfo & info) {
+
     // Create constituents from particles
     std::vector<fastjet::PseudoJet> constituents;
     constituents.reserve(j.nPart);
@@ -105,20 +132,74 @@ inline double get_dpsi(const simon::jet & j){
         constituents.push_back(fastjet::PseudoJet(px, py, pz, E));
     }
     
-    // Cluster constituents - keep ClusterSequence alive during declusterings
-    fastjet::JetDefinition jd(fastjet::cambridge_algorithm, 1000.0);
+    // Build jet from constituents
+    // Radius arbitrarily large to ensure all constituents are clustered into one jet
+    fastjet::JetDefinition jd(fastjet::antikt_algorithm, fastjet::JetDefinition::max_allowable_R);
     fastjet::ClusterSequence cs(constituents, jd);
+    
+    // Double-check that we get exactly one jet from the clustering
+    // Otherwise something has gone wrong
     if (cs.inclusive_jets().size() != 1){
         printf("There were %lu constituents\n", constituents.size());
         printf("Resulting in %lu jets\n", cs.inclusive_jets().size());
         printf("The 0th constituent has pt %f\n", constituents[0].pt());
         throw std::runtime_error("Expected exactly one jet from clustering, got " + std::to_string(cs.inclusive_jets().size()));
     }
+
+    // Get the jet
     fastjet::PseudoJet jet = cs.inclusive_jets()[0];
     
-    // Compute declusterings while ClusterSequence is alive
+    // Perform C/A reclustering
     auto declust = jet_declusterings(jet);
-    return deltaPsi(declust);
+
+    if (declust.size() < 2){
+        info.pt1 = -10;
+        info.pt2 = -10;
+        info.pt3 = -10;
+        info.pt4 = -10;
+        info.pt5 = -10;
+        info.delta_R23 = -10;
+        info.z23 = -10;
+        info.kt23 = -10;
+        info.phi23 = -10;
+        info.delta_R45 = -10;
+        info.z45 = -10;
+        info.kt45 = -10;
+        info.phi45 = -10;
+        info.deltaPsi = -10;
+        return;
+    } else {
+        const auto& declus123 = declust[0];
+        const auto& declus245 = declust[1];
+
+        info.pt1 = declus123.pt;
+        info.pt2 = declus123.pt1;
+        info.pt3 = declus123.pt2;
+
+        printf("difference between two different ways of getting pt2: %g\n",
+               declus123.pt1 - declus245.pt);
+
+        info.pt4 = declus245.pt1;
+        info.pt5 = declus245.pt2;
+
+        info.delta_R23 = declus123.delta_R;
+        info.z23 = declus123.z;
+        info.kt23 = declus123.kt;
+        info.phi23 = declus123.varphi;
+
+        info.delta_R45 = declus245.delta_R;
+        info.z45 = declus245.z;
+        info.kt45 = declus245.kt;
+        info.phi45 = declus245.varphi;
+
+        info.deltaPsi = info.phi23 - info.phi45;
+        if(info.deltaPsi < 0) {
+            info.deltaPsi += 2*M_PI;
+        }
+        if(info.deltaPsi > 2*M_PI){
+            info.deltaPsi -= 2*M_PI;
+        }
+    }    
 }
 
 } // namespace simon
