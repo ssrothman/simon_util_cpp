@@ -97,25 +97,6 @@ inline std::vector<Declustering>  jet_declusterings(const fastjet::PseudoJet & j
     return result;
 }
 
-inline double deltaPsi(std::vector< Declustering> clust){
-    if(clust.size() < 2){
-        return -10;
-    }
-
-    double varPhi1 = clust[0].varphi;
-    double varPhi2 = clust[1].varphi;
-    double deltaVarPhi = varPhi1 - varPhi2;
-    
-    if(deltaVarPhi < 0) {
-        deltaVarPhi = 2*M_PI - deltaVarPhi;
-    }
-    if(deltaVarPhi > 2*M_PI){
-        deltaVarPhi = deltaVarPhi - 2*M_PI;
-    } 
-
-    return deltaVarPhi;
-}
-
 inline void hardest_splitting_info(const simon::jet & j,
                                    struct SplittingInfo & info) {
 
