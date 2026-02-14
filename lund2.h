@@ -45,6 +45,7 @@ struct SingleSplittingInfo {
         ROOT::Math::Boost boostToRest(ref.BoostToCM());
         math::PtEtaPhiMLorentzVector p2_boosted = boostToRest(p2);
         math::PtEtaPhiMLorentzVector p3_boosted = boostToRest(p3);
+        
         double deltaPhi = reco::deltaPhi(p2_boosted.phi(), p3_boosted.phi());
         double deltaY = p2_boosted.Rapidity() - p3_boosted.Rapidity();
         double psi = atan2(deltaY, deltaPhi);
@@ -62,7 +63,13 @@ struct SingleSplittingInfo {
         ROOT::Math::XYZVector p2_vec(p2.Px(), p2.Py(), p2.Pz());
         ROOT::Math::XYZVector p3_vec(p3.Px(), p3.Py(), p3.Pz());
         ROOT::Math::XYZVector cross = p2_vec.Cross(p3_vec);
-        return cross.Unit();
+        
+        // if the cross product is very small, return a default vector to avoid numerical issues
+        if (cross.Mag2() < 1e-4) {
+            return ROOT::Math::XYZVector(0,0,0);
+        } else {
+            return cross.Unit();
+        }
     }
 
     // normalized cross product of the spatial coordinates of p2 and p3
@@ -74,7 +81,13 @@ struct SingleSplittingInfo {
         ROOT::Math::XYZVector p2_vec(p2_boosted.Px(), p2_boosted.Py(), p2_boosted.Pz());
         ROOT::Math::XYZVector p3_vec(p3_boosted.Px(), p3_boosted.Py(), p3_boosted.Pz());
         ROOT::Math::XYZVector cross = p2_vec.Cross(p3_vec);
-        return cross.Unit();
+
+        // if the cross product is very small, return a default vector to avoid numerical issues
+        if (cross.Mag2() < 1e-4) {
+            return ROOT::Math::XYZVector(0,0,0);
+        } else {
+            return cross.Unit();
+        }
     }
 
     // constructor from three genParticle objects
@@ -169,7 +182,7 @@ struct DoubleSplittingInfo{
 };
 
 inline void LundDeclustered(const simon::jet & j, 
-                            const bool hardSize_,
+                            const bool hardSide_,
                             double zcut1,
                             double zcut2,
                             std::vector<simon::DoubleSplittingInfo>& result){
@@ -230,9 +243,16 @@ inline void LundDeclustered(const simon::jet & j,
     }
 
     // now find the next splitting down the hard/soft branch
-    jj = j_first;
+    j_first.has_parents(j1, j2);
+    if (hardSide_){
+        jj = j1;
+    } else {
+        jj = j2;
+    }
+
     fastjet::PseudoJet j_second;
     double kt_second = -1.0;
+
     while (jj.has_parents(j1, j2)) {
         SingleSplittingInfo current_split(jj, j1, j2);
         if (current_split.z > zcut2 && current_split.kt > kt_second) {
@@ -240,14 +260,7 @@ inline void LundDeclustered(const simon::jet & j,
             j_second = jj;
         }
 
-        if (hardSize_) {
-            // follow harder branch
-            jj = j1;
-        } else {
-            // follow softer branch
-            jj = j2;
-        }
-        
+        jj = j1;
     }
     if (kt_second < 0.0) {
         // no second splitting found
