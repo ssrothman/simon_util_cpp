@@ -29,14 +29,7 @@ struct SingleSplittingInfo {
     double psi_type1() const {
         double deltaPhi = reco::deltaPhi(p2.phi(), p3.phi());
         double deltaY = p2.Rapidity() - p3.Rapidity();
-        double psi = atan2(deltaY, deltaPhi);
-        if (psi < -M_PI) {
-            psi += 2*M_PI;
-        }
-        if (psi > M_PI) {
-            psi -= 2*M_PI;
-        }
-        return psi;
+        return atan2(deltaY, deltaPhi);
     }
 
     //angle p2 and p3 make in the (y, phi) plane
@@ -48,14 +41,7 @@ struct SingleSplittingInfo {
         
         double deltaPhi = reco::deltaPhi(p2_boosted.phi(), p3_boosted.phi());
         double deltaY = p2_boosted.Rapidity() - p3_boosted.Rapidity();
-        double psi = atan2(deltaY, deltaPhi);
-        if (psi < -M_PI) {
-            psi += 2*M_PI;
-        }
-        if (psi > M_PI) {
-            psi -= 2*M_PI;
-        }
-        return psi;
+        return atan2(deltaY, deltaPhi);
     }
 
     // normalized cross product of the spatial coordinates of p2 and p3
@@ -152,6 +138,8 @@ struct DoubleSplittingInfo{
         ROOT::Math::XYZVector cross1 = split123.psi_type3();
         ROOT::Math::XYZVector cross2 = split456.psi_type3();
         double dot = cross1.Dot(cross2);
+        // Clamp to [-1, 1] to avoid NaN from floating point errors
+        dot = std::max(-1.0, std::min(1.0, dot));
         return acos(dot);
     }
 
@@ -159,6 +147,8 @@ struct DoubleSplittingInfo{
         ROOT::Math::XYZVector cross1 = split123.psi_type4(ref);
         ROOT::Math::XYZVector cross2 = split456.psi_type4(ref);
         double dot = cross1.Dot(cross2);
+        // Clamp to [-1, 1] to avoid NaN from floating point errors
+        dot = std::max(-1.0, std::min(1.0, dot));
         return acos(dot);
     }
 
@@ -226,7 +216,7 @@ inline void LundDeclustered(const simon::jet & j,
     fastjet::PseudoJet j_first; 
     double kt_best = -1.0;
 
-    jj = jCA;;
+    jj = jCA;
     while (jj.has_parents(j1, j2)) {
         SingleSplittingInfo current_split(jj, j1, j2);
         if (current_split.z > zcut1 && current_split.kt > kt_best) {
