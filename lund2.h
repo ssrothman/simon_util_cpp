@@ -122,6 +122,52 @@ struct DoubleSplittingInfo{
     SingleSplittingInfo split123;
     SingleSplittingInfo split456;
 
+    // C2 correlation measure using initial mother particle as reference
+    double C2() const {
+        return C2(split123.p1);
+    }
+
+    // C2 correlation measure with explicit reference vector n
+    // Adapted from Stefan Hoeche's code
+    // https://gitlab.com/shoeche/pyalaric/-/blob/pol/analysis.py#L46-55
+    double C2(const math::PtEtaPhiMLorentzVector& n) const {          
+        // pi, pj are from first splitting (split123.p2 and split123.p3)
+        // p1, p2 are from second splitting (split456.p2 and split456.p3)
+        const math::PtEtaPhiMLorentzVector& pi = split123.p2;
+        const math::PtEtaPhiMLorentzVector& pj = split123.p3;
+        const math::PtEtaPhiMLorentzVector& p1 = split456.p2;
+        const math::PtEtaPhiMLorentzVector& p2 = split456.p3;
+        
+        // Compute all six dot products
+        double sij = 2*pi.Dot(pj);
+        double si1 = 2*pi.Dot(p1);
+        double sj1 = 2*pj.Dot(p1);
+        double si2 = 2*pi.Dot(p2);
+        double sj2 = 2*pj.Dot(p2);
+        double s12 = 2*p1.Dot(p2);
+        
+        // Compute invariant masses squared
+        math::PtEtaPhiMLorentzVector pi_p1_p2 = pi + p1 + p2;
+        math::PtEtaPhiMLorentzVector pj_p1_p2 = pj + p1 + p2;
+        double si12 = pi_p1_p2.M2();
+        double sj12 = pj_p1_p2.M2();
+        
+        // Energy fractions relative to reference vector
+        double z1 = p1.Dot(n);
+        double z2 = p2.Dot(n);
+        
+        // Check for zero denominators
+        if (si12 == 0 || sj12 == 0 || s12 == 0 || sij == 0) return 0;
+        
+        // Calculate C2 correlation
+        double c2 = ((si1-si2)/(2*si12)-(sj1-sj2)/(2*sj12));
+        c2 = c2 * c2;
+        c2 /= 4*sij/(si12*sj12)*(1+s12/sij*std::pow((si1-sj1+si2-sj2), 2)/(4*si12*sj12));
+        c2 /= z1*z2/std::pow(z1+z2, 2)*s12;
+        
+        return c2;
+    }
+
     double deltaPsi_type1() const {
         return reco::deltaPhi(split123.psi_type1(), split456.psi_type1());
     }
