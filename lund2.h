@@ -138,9 +138,18 @@ struct DoubleSplittingInfo{
         ROOT::Math::XYZVector cross1 = split123.psi_type3();
         ROOT::Math::XYZVector cross2 = split456.psi_type3();
         double dot = cross1.Dot(cross2);
+
         // Clamp to [-1, 1] to avoid NaN from floating point errors
         dot = std::max(-1.0, std::min(1.0, dot));
-        return acos(dot);
+
+        // Use cross product to set sign correctly
+        ROOT::Math::XYZVector cross12 = cross1.Cross(cross2);
+        double crossdot = cross12.Dot(split456.p1);
+        if (crossdot > 0){
+            return acos(dot);
+        } else {
+            return -acos(dot);
+        }
     }
 
     double deltaPsi_type4(math::PtEtaPhiMLorentzVector ref) const {
@@ -149,7 +158,15 @@ struct DoubleSplittingInfo{
         double dot = cross1.Dot(cross2);
         // Clamp to [-1, 1] to avoid NaN from floating point errors
         dot = std::max(-1.0, std::min(1.0, dot));
-        return acos(dot);
+
+        // Use cross product to set sign correctly
+        ROOT::Math::XYZVector cross12 = cross1.Cross(cross2);
+        double crossdot = cross12.Dot(split456.p1);
+        if (crossdot > 0){
+            return acos(dot);
+        } else {
+            return -acos(dot);
+        }
     }
 
     double deltaPsi_type4() const {
