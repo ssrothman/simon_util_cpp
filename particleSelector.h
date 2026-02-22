@@ -69,7 +69,9 @@ namespace simon{
         std::string trkDrop;
         std::string EM0threshold, HAD0threshold;
         std::string ELEthreshold, MUthreshold, HADCHthreshold;
-        std::string requireVertex;
+
+        bool applyPuppiCut, applyFromPVCut;
+        bool applyDZCut, applyDXYCut;
 
         bool applyPuppi, onlyCharged;
 
@@ -83,7 +85,10 @@ namespace simon{
             ELEthreshold(conf.getParameter<std::string>("ELEthreshold")),
             MUthreshold(conf.getParameter<std::string>("MUthreshold")),
             HADCHthreshold(conf.getParameter<std::string>("HADCHthreshold")),
-            requireVertex(conf.getParameter<std::string>("requireVertex")),
+            applyPuppiCut(conf.getParameter<bool>("applyPuppiCut")),
+            applyFromPVCut(conf.getParameter<bool>("applyFromPVCut")),
+            applyDZCut(conf.getParameter<bool>("applyDZCut")),
+            applyDXYCut(conf.getParameter<bool>("applyDXYCut")),
             applyPuppi(conf.getParameter<bool>("applyPuppi")),
             onlyCharged(conf.getParameter<bool>("onlyCharged")) {}
 
@@ -97,7 +102,11 @@ namespace simon{
             desc.add<std::string>("ELEthreshold");
             desc.add<std::string>("MUthreshold");
             desc.add<std::string>("HADCHthreshold");
-            desc.add<std::string>("requireVertex");
+
+            desc.add<bool>("applyPuppiCut");
+            desc.add<bool>("applyFromPVCut");
+            desc.add<bool>("applyDZCut");
+            desc.add<bool>("applyDXYCut");
 
             desc.add<bool>("applyPuppi");
             desc.add<bool>("onlyCharged");
@@ -191,10 +200,10 @@ namespace simon{
             MUthreshold = params.MUthresholds[1+DN_NOM_UP(settings.MUthreshold)];
             HADCHthreshold = params.HADCHthresholds[1+DN_NOM_UP(settings.HADCHthreshold)];
 
-            minFromPV = ON_OFF(settings.requireVertex) ? params.minFromPV : 0;
-            minPuppiWt = ON_OFF(settings.requireVertex) ? params.minPuppiWt : 0.0;
-            maxDZ = ON_OFF(settings.requireVertex) ? params.maxDZ : 999.0;
-            maxDXY = ON_OFF(settings.requireVertex) ? params.maxDXY : 999.0;
+            minFromPV = settings.applyFromPVCut ? params.minFromPV : 0;
+            minPuppiWt = settings.applyPuppiCut ? params.minPuppiWt : 0.0;
+            maxDZ = settings.applyDZCut ? params.maxDZ : 999.0;
+            maxDXY = settings.applyDXYCut ? params.maxDXY : 999.0;
 
             applyPuppi = settings.applyPuppi;
             onlyCharged = settings.onlyCharged;
