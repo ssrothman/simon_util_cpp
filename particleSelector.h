@@ -14,6 +14,8 @@
 #include "etaRegion.h"
 #include "deltaR.h"
 
+#include "SRothman/correctionlib/include/correction.h"
+
 namespace simon{
     class syst_parameters{
     public:
@@ -22,6 +24,7 @@ namespace simon{
         std::vector<double> EM0thresholds, HAD0thresholds, ELEthresholds, MUthresholds, HADCHthresholds;
         int minFromPV;
         double minPuppiWt, maxDZ, maxDXY;
+        std::string extraTrkUncJson, extraTrkUncKey;
 
         syst_parameters(const edm::ParameterSet& conf):
             EM0scale(conf.getParameter<double>("EM0scale")),
@@ -40,7 +43,11 @@ namespace simon{
             minFromPV(conf.getParameter<int>("minFromPV")),
             minPuppiWt(conf.getParameter<double>("minPuppiWt")),
             maxDZ(conf.getParameter<double>("maxDZ")),
-            maxDXY(conf.getParameter<double>("maxDXY")) {}
+            maxDXY(conf.getParameter<double>("maxDXY")),
+
+            extraTrkUncJson(conf.getParameter<std::string>("extraTrkUncJson")),
+            extraTrkUncKey(conf.getParameter<std::string>("extraTrkUncKey"))
+        {}
 
         static void fillPSetDescription(edm::ParameterSetDescription& desc){
             desc.add<double>("EM0scale");
@@ -60,6 +67,9 @@ namespace simon{
             desc.add<double>("minPuppiWt");
             desc.add<double>("maxDZ");
             desc.add<double>("maxDXY");
+
+            desc.add<std::string>("extraTrkUncJson");
+            desc.add<std::string>("extraTrkUncKey");
         }
     };
 
@@ -74,6 +84,8 @@ namespace simon{
         bool applyDZCut, applyDXYCut;
 
         bool applyPuppi, onlyCharged;
+
+        bool enableExtraTrkUnc;
 
         syst_settings(const edm::ParameterSet& conf):
             EM0scale(conf.getParameter<std::string>("EM0scale")),
@@ -90,7 +102,9 @@ namespace simon{
             applyDZCut(conf.getParameter<bool>("applyDZCut")),
             applyDXYCut(conf.getParameter<bool>("applyDXYCut")),
             applyPuppi(conf.getParameter<bool>("applyPuppi")),
-            onlyCharged(conf.getParameter<bool>("onlyCharged")) {}
+            onlyCharged(conf.getParameter<bool>("onlyCharged")),
+            enableExtraTrkUnc(conf.getParameter<bool>("enableExtraTrkUnc")) 
+        {}
 
         static void fillPSetDescription(edm::ParameterSetDescription& desc){
             desc.add<std::string>("EM0scale");
@@ -110,6 +124,8 @@ namespace simon{
 
             desc.add<bool>("applyPuppi");
             desc.add<bool>("onlyCharged");
+
+            desc.add<bool>("enableExtraTrkUnc");
         }
     };
 
@@ -133,6 +149,13 @@ namespace simon{
          */
         double trkDropProb; 
         double trkDropSmear;
+
+        /*
+         * Extra correctionlib-based tracking uncertainty
+         */
+        std::unique_ptr<correction::CorrectionSet> extraTrkUncCorrSet;
+        std::string extraTrkUncKey;
+        bool enableExtraTrkUnc;
 
         /*
          * Reconstruction thresholds:
@@ -207,6 +230,17 @@ namespace simon{
 
             applyPuppi = settings.applyPuppi;
             onlyCharged = settings.onlyCharged;
+
+            enableExtraTrkUnc = settings.enableExtraTrkUnc;
+            if (enableExtraTrkUnc){
+                printf("Loading extra track uncertainty from %s with key %s\n", params.extraTrkUncJson.c_str(), params.extraTrkUncKey.c_str());
+                extraTrkUncCorrSet = correction::CorrectionSet::from_file(params.extraTrkUncJson);
+                extraTrkUncKey = params.extraTrkUncKey;
+            } else {
+                printf("Extra track uncertainty is disabled\n");
+                extraTrkUncCorrSet = nullptr;
+                extraTrkUncKey = "";
+            }
         }
 
         static void fillPSetDescription(edm::ParameterSetDescription& desc){
@@ -220,7 +254,7 @@ namespace simon{
         }
 
         template <typename T>
-        bool makeParticle(const T* const partptr, particle& nextpart){
+        bool makeParticle(const T* const partptr, particle& nextpart, const double Jpt, const double Jeta, const double Jphi){
             nextpart.pt = 0;
 
             //lookup particle properties
@@ -275,6 +309,22 @@ namespace simon{
                 }
             }
 
+            // do extra track dropping
+            if (enableExtraTrkUnc && nextpart.charge != 0){
+                double dR_jet = deltaR(nextpart.eta, nextpart.phi, Jeta, Jphi);
+                double extraUnc = extraTrkUncCorrSet->at(extraTrkUncKey)->evaluate({nextpart.pt, Jpt, dR_jet});
+                if (rand(rng) < extraUnc){
+                    printf("Extra-dropped a track with pt %g from a jet with pt %g at dR %g\n", nextpart.pt, Jpt, dR_jet);
+                    nextpart.pt *= trkDropSmear*normal(rng) + 1;
+                    nextpart.charge = 0;
+                    if(nextpart.pdgid == 11){
+                        nextpart.pdgid = 22;
+                    } else {
+                        nextpart.pdgid = 130;
+                    }
+                }
+            }
+
             //apply energy scale systematics
             if(nextpart.pdgid == 22){
                 nextpart.pt *= EM0factor;
@@ -316,6 +366,7 @@ namespace simon{
 
         template <typename COLLECTION, typename F=std::function<bool(const edm::Ptr<reco::Candidate>&)>>
         void buildJet(const COLLECTION& parts, jet& result,
+                      const double Jpt, const double Jeta, const double Jphi,
                       F* filter = nullptr){
             result.rawpt = 0;
             result.sumpt = 0;
@@ -332,11 +383,11 @@ namespace simon{
                 particle nextpart;
                 bool passed;
                 if(recoptr){
-                    passed = makeParticle(recoptr, nextpart);
+                    passed = makeParticle(recoptr, nextpart, Jpt, Jeta, Jphi);
                 } else if(genptr){
-                    passed = makeParticle(genptr, nextpart);
+                    passed = makeParticle(genptr, nextpart, Jpt, Jeta, Jphi);
                 } else if(genptr2){
-                    passed = makeParticle(genptr2, nextpart);
+                    passed = makeParticle(genptr2, nextpart, Jpt, Jeta, Jphi);
                 } else {
                     throw std::runtime_error("Unknown particle type");
                 }
