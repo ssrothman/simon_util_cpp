@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "jet.h"
 #include "isID.h"
@@ -24,7 +25,7 @@ namespace simon{
         std::vector<double> EM0thresholds, HAD0thresholds, ELEthresholds, MUthresholds, HADCHthresholds;
         int minFromPV;
         double minPuppiWt, maxDZ, maxDXY;
-        std::string extraTrkUncJson, extraTrkUncKey;
+        edm::FileInPath extraTrkUncJson;
 
         syst_parameters(const edm::ParameterSet& conf):
             EM0scale(conf.getParameter<double>("EM0scale")),
@@ -45,8 +46,7 @@ namespace simon{
             maxDZ(conf.getParameter<double>("maxDZ")),
             maxDXY(conf.getParameter<double>("maxDXY")),
 
-            extraTrkUncJson(conf.getParameter<std::string>("extraTrkUncJson")),
-            extraTrkUncKey(conf.getParameter<std::string>("extraTrkUncKey"))
+            extraTrkUncJson(conf.getParameter<edm::FileInPath>("extraTrkUncJson"))
         {}
 
         static void fillPSetDescription(edm::ParameterSetDescription& desc){
@@ -68,8 +68,7 @@ namespace simon{
             desc.add<double>("maxDZ");
             desc.add<double>("maxDXY");
 
-            desc.add<std::string>("extraTrkUncJson");
-            desc.add<std::string>("extraTrkUncKey");
+            desc.add<edm::FileInPath>("extraTrkUncJson");
         }
     };
 
@@ -85,6 +84,7 @@ namespace simon{
 
         bool applyPuppi, onlyCharged;
 
+        std::string extraTrkUncKey;
         bool enableExtraTrkUnc;
 
         syst_settings(const edm::ParameterSet& conf):
@@ -103,6 +103,7 @@ namespace simon{
             applyDXYCut(conf.getParameter<bool>("applyDXYCut")),
             applyPuppi(conf.getParameter<bool>("applyPuppi")),
             onlyCharged(conf.getParameter<bool>("onlyCharged")),
+            extraTrkUncKey(conf.getParameter<std::string>("extraTrkUncKey")),
             enableExtraTrkUnc(conf.getParameter<bool>("enableExtraTrkUnc")) 
         {}
 
@@ -125,6 +126,7 @@ namespace simon{
             desc.add<bool>("applyPuppi");
             desc.add<bool>("onlyCharged");
 
+            desc.add<std::string>("extraTrkUncKey");
             desc.add<bool>("enableExtraTrkUnc");
         }
     };
@@ -233,9 +235,9 @@ namespace simon{
 
             enableExtraTrkUnc = settings.enableExtraTrkUnc;
             if (enableExtraTrkUnc){
-                printf("Loading extra track uncertainty from %s with key %s\n", params.extraTrkUncJson.c_str(), params.extraTrkUncKey.c_str());
-                extraTrkUncCorrSet = correction::CorrectionSet::from_file(params.extraTrkUncJson);
-                extraTrkUncKey = params.extraTrkUncKey;
+                printf("Loading extra track uncertainty from %s with key %s\n", params.extraTrkUncJson.fullPath().c_str(), settings.extraTrkUncKey.c_str());
+                extraTrkUncCorrSet = correction::CorrectionSet::from_file(params.extraTrkUncJson.fullPath());
+                extraTrkUncKey = settings.extraTrkUncKey;
             } else {
                 printf("Extra track uncertainty is disabled\n");
                 extraTrkUncCorrSet = nullptr;
@@ -314,7 +316,8 @@ namespace simon{
                 double dR_jet = deltaR(nextpart.eta, nextpart.phi, Jeta, Jphi);
                 double extraUnc = extraTrkUncCorrSet->at(extraTrkUncKey)->evaluate({nextpart.pt, Jpt, dR_jet});
                 if (rand(rng) < extraUnc){
-                    printf("Extra-dropped a track with pt %g from a jet with pt %g at dR %g\n", nextpart.pt, Jpt, dR_jet);
+                    printf("Dropping track due to extra uncertainty: %f\n", extraUnc);
+                    printf("\tpt: %f, Jpt: %f, dR_jet: %f\n", nextpart.pt, Jpt, dR_jet);
                     nextpart.pt *= trkDropSmear*normal(rng) + 1;
                     nextpart.charge = 0;
                     if(nextpart.pdgid == 11){
